@@ -1,1 +1,1 @@
-# Mint Site
+# NFT Minting Site
