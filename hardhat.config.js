@@ -5,10 +5,10 @@ require("solidity-coverage");
 require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
-const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "";
-const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
-const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL || "";
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL;
 
 module.exports = {
     defaultNetwork: "hardhat",
