@@ -13,74 +13,67 @@ error BinariesNFT__WrongValue();
 
 /// @title Binaries NFT
 /// @author mektigboy
-/// @notice The purpose of this contract is to mint NFTs from the "BinariesNFT" collection.
-/// @dev This contracts uses libraries from OpenZeppelin.
+/// @notice Mint NFTs from the "BinariesNFT" collection.
+/// @dev Uses libraries from OpenZeppelin.
 contract BinariesNFT is ERC721, Ownable {
-    address payable public withdrawAddress;
-    bool public isPublicMintEnabled;
-    string internal baseTokenURI;
-    uint256 public totalSupply;
-    uint256 public maximumPerWallet;
-    uint256 public maximumSupply;
-    uint256 public mintPrice;
+    address payable public s_withdrawalAddress;
+    bool public s_isPublicMintEnabled;
+    uint256 public s_tokenCounter;
 
-    mapping(address => uint256) public tracker;
+    string public constant TOKEN_URI =
+        "ipfs://bafkreidiszt2rp5unghfq3xfdagqcl7b6z2yc4ef6bmkbqbrqrcvoahnby";
+    uint256 public constant MAXIMUM_PER_WALLET = 5;
+    uint256 public constant MAXIMUM_SUPPLY = 1000;
+    uint256 public constant MINT_PRICE = 0.01 ether;
+
+    mapping(address => uint256) public s_tracker;
 
     constructor() payable ERC721("BinariesNFT", "B01") {
-        withdrawAddress = payable(0xa7a0275220A00ae3B360F7cB080069063e886271);
-        totalSupply = 0;
-        maximumPerWallet = 5;
-        maximumSupply = 1000;
-        mintPrice = 0.01 ether;
+        s_withdrawalAddress = payable(
+            0xa7a0275220A00ae3B360F7cB080069063e886271
+        );
+        s_tokenCounter = 0;
     }
 
-    function setBaseTokenURI(string calldata baseTokenURI_) external onlyOwner {
-        baseTokenURI = baseTokenURI_;
-    }
-
-    function setIsPublicMintEnabled(bool isPublicMintEnabled_)
-        external
-        onlyOwner
-    {
-        isPublicMintEnabled = isPublicMintEnabled_;
-    }
-
-    function mint(uint256 quantity_) public payable {
-        if (!isPublicMintEnabled) revert BinariesNFT__MintingNotEnabled();
-        if (msg.value != quantity_ * mintPrice)
+    function mintNFT(uint256 quantity) public payable {
+        if (!s_isPublicMintEnabled) revert BinariesNFT__MintingNotEnabled();
+        if (msg.value != quantity * MINT_PRICE)
             revert BinariesNFT__WrongValue();
-        if (maximumSupply <= quantity_ + totalSupply)
+        if (MAXIMUM_SUPPLY <= quantity + s_tokenCounter)
             revert BinariesNFT__SoldOut();
-        if (maximumPerWallet <= quantity_ + tracker[msg.sender])
+        if (MAXIMUM_PER_WALLET <= quantity + s_tracker[msg.sender])
             revert BinariesNFT__ExceededMaximumPerWallet();
-        for (uint256 i = 0; i < quantity_; i++) {
-            uint256 newTokenId = totalSupply + 1;
-            totalSupply++;
+        for (uint256 i = 0; i < quantity; i++) {
+            uint256 newTokenId = s_tokenCounter + 1;
+            s_tokenCounter++;
             _safeMint(msg.sender, newTokenId);
         }
     }
 
-    function tokenURI(uint256 tokenId_)
-        public
-        view
-        override
-        returns (string memory)
+    function setIsPublicMintEnabled(bool isPublicMintEnabled)
+        external
+        onlyOwner
     {
-        if (!_exists(tokenId_)) revert BinariesNFT__TokenDoesNotExists();
-        return
-            string(
-                abi.encodePacked(
-                    baseTokenURI,
-                    Strings.toString(tokenId_),
-                    ".json"
-                )
-            );
+        s_isPublicMintEnabled = isPublicMintEnabled;
+    }
+
+    function setWithdrawalAddress(address payable withdrawalAddress)
+        external
+        onlyOwner
+    {
+        s_withdrawalAddress = withdrawalAddress;
+    }
+
+    function tokenURI(
+        uint256 /* tokenId */
+    ) public pure override returns (string memory) {
+        return TOKEN_URI;
     }
 
     function withdraw() external onlyOwner {
-        (bool success, ) = withdrawAddress.call{value: address(this).balance}(
-            ""
-        );
+        (bool success, ) = s_withdrawalAddress.call{
+            value: address(this).balance
+        }("");
         if (!success) revert BinariesNFT__WithdrawFailed();
     }
 }
