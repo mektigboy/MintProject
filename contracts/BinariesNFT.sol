@@ -16,7 +16,7 @@ error BinariesNFT__WrongValue();
 /// @notice Mint NFTs from the "BinariesNFT" collection.
 /// @dev Uses libraries from OpenZeppelin.
 contract BinariesNFT is ERC721, Ownable {
-    address payable public s_withdrawalAddress;
+    address payable public s_withdrawAddress;
     bool public s_isPublicMintEnabled;
     uint256 public s_tokenCounter;
 
@@ -29,7 +29,7 @@ contract BinariesNFT is ERC721, Ownable {
     mapping(address => uint256) public s_tracker;
 
     constructor() payable ERC721("BinariesNFT", "B01") {
-        s_withdrawalAddress = payable(
+        s_withdrawAddress = payable(
             0xa7a0275220A00ae3B360F7cB080069063e886271
         );
         s_tokenCounter = 0;
@@ -57,11 +57,11 @@ contract BinariesNFT is ERC721, Ownable {
         s_isPublicMintEnabled = isPublicMintEnabled;
     }
 
-    function setWithdrawalAddress(address payable withdrawalAddress)
+    function setWithdrawAddress(address payable withdrawAddress)
         external
         onlyOwner
     {
-        s_withdrawalAddress = withdrawalAddress;
+        s_withdrawAddress = withdrawAddress;
     }
 
     function tokenURI(
@@ -71,7 +71,7 @@ contract BinariesNFT is ERC721, Ownable {
     }
 
     function withdraw() external onlyOwner {
-        (bool success, ) = s_withdrawalAddress.call{
+        (bool success, ) = s_withdrawAddress.call{
             value: address(this).balance
         }("");
         if (!success) revert BinariesNFT__WithdrawFailed();
