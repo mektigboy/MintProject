@@ -13,6 +13,8 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
         waitConfirmations: network.config.blockConfirmations || 1,
     });
 
+    log("--------------------------------------------------");
+    
     if (
         !developmentChains.includes(network.name) &&
         process.env.ETHERSCAN_API_KEY
@@ -20,8 +22,6 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
         log("Verifying...");
         await verify(binariesNFT.address, arguments);
     }
-
-    log("--------------------------------------------------");
 };
 
 module.exports.tags = ["all", "binaries-nft"];
